@@ -7,12 +7,12 @@ class SecuritySystem:
     def __init__(self, log_file="/var/log/auth.log", alert_threshold=5, time_window=60, alert_type="console"):
         self.log_scanner = LogScanner(log_file, alert_threshold, time_window)
         self.alert_generator = AlertGenerator(alert_type)
-        self.firewall_script = "./firewall_controller.sh"
+        # self.firewall_script = "./firewall_controller.sh"
         self.log_scanner.set_alert_callback(self._handle_alert)
 
     def _handle_alert(self, ip_address, message):
         self.alert_generator.send_alert(message)
-        self.block_ip(ip_address)
+        # self.block_ip(ip_address)
 
     def run(self):
         print("[*] Starting Security Monitoring & Alerting System...")
@@ -25,21 +25,7 @@ class SecuritySystem:
         except KeyboardInterrupt:
             print("[*] Security Monitoring & Alerting System stopped.")
 
-    def block_ip(self, ip_address):
-        print(f"[*] Attempting to block IP: {ip_address} using UFW...")
-        try:
-            # Ensure the script is executable: chmod +x firewall_controller.sh
-            result = subprocess.run([self.firewall_script, "block", ip_address],
-                                    capture_output=True, text=True, check=True)
-            print(result.stdout)
-            if result.stderr:
-                print(f"[ERROR] Firewall script error: {result.stderr}")
-        except FileNotFoundError:
-            print(f"[ERROR] Firewall script not found at {self.firewall_script}. Make sure it's in the correct path and executable.")
-        except subprocess.CalledProcessError as e:
-            print(f"[ERROR] Firewall script failed with exit code {e.returncode}: {e.stderr}")
-        except Exception as e:
-            print(f"An unexpected error occurred while blocking IP: {e}")
+
 
 # To run this system:
 # 1. Make sure you have `log_scanner.py`, `alert_generator.py`, and `firewall_controller.sh` in the same directory.
@@ -54,5 +40,5 @@ if __name__ == "__main__":
     # Example for testing with a dummy log file:
     # system = SecuritySystem(log_file="./dummy_auth.log", alert_type="console")
 
-    system = SecuritySystem(alert_type="console")
+    system = SecuritySystem(log_file="./dummy_auth.log", alert_type="console")
     system.run()
